@@ -3,24 +3,106 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #b71c1c; /* vermelho tema */
+  --card-start: #fff7f7;
+  --card-end: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-title);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000;
+    --foreground: #ffffff;
+    --card-start: #0f0f0f;
+    --card-end: #121212;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui;
+}
+
+/* Estilo pergaminho sutil para cards */
+.parchment {
+  background-image: linear-gradient(180deg, var(--card-start), var(--card-end));
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+/* Faixa vermelha com cantos chanfrados (inspirado na ficha) */
+.ribbon {
+  position: relative;
+  background: var(--primary);
+  color: #fff;
+  padding: 8px 12px;
+  border: 1px solid #560a0a;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+}
+.ribbon:before, .ribbon:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 100%;
+  background: var(--primary);
+  border: 1px solid #560a0a;
+}
+.ribbon:before { left: -8px; transform: skewX(-18deg); border-right: 0; }
+.ribbon:after { right: -8px; transform: skewX(18deg); border-left: 0; }
+
+/* Octógonos para atributos */
+.octagon {
+  background: #fff;
+  color: #000;
+  clip-path: polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%);
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 0 #560a0a;
+}
+.octagon-dark { background:#000; color:#fff; }
+
+/* Inputs brancos com borda fina para o estilo da ficha */
+.sheet-input {
+  border: 1px solid rgba(0,0,0,0.2);
+  background: #ffffff;
+}
+.sheet-input-dark { border-color: rgba(255,255,255,0.25); background:#0d0d0d; color:#fff; }
+
+/* Títulos das seções com faixa */
+.section-title { font-family: var(--font-title); letter-spacing: .5px; }
+
+/* Tabela enxuta */
+.sheet-table { border-collapse: collapse; width: 100%; }
+.sheet-table th, .sheet-table td { border-bottom: 1px solid rgba(255,255,255,0.12); }
+.sheet-table thead th { font-weight: 600; opacity: .9; }
+.sheet-table td { padding-top: .5rem; padding-bottom: .5rem; }
+
+/* Corrige inputs no tema escuro (evita quadrados brancos) */
+input[type="number"].sheet-input,
+input[type="text"].sheet-input,
+textarea.sheet-input {
+  background-color: #ffffff;
+  color: #000000;
+}
+.dark input[type="number"].sheet-input,
+.dark input[type="text"].sheet-input,
+.dark textarea.sheet-input,
+.dark .sheet-input-dark {
+  background-color: #0d0d0d !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+
+/* Impressão */
+@media print {
+  .no-print { display: none !important; }
+  body { background: #ffffff !important; }
 }
