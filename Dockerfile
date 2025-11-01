@@ -66,7 +66,8 @@ ENV PORT=3000
 # set hostname to localhost
 ENV HOSTNAME=0.0.0.0
 
-# Usar tsx para rodar server.ts (que inclui Socket.io)
+# Usar npx tsx para rodar server.ts (que inclui Socket.io)
+# npx garante que encontre tsx mesmo com PATH limitado
 # Como o build standalone do Next.js não inclui server.ts, precisamos rodar diretamente
-CMD ["tsx", "server.ts"]
+CMD ["npx", "tsx", "server.ts"]
 
