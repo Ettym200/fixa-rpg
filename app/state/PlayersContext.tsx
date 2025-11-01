@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { useSocket } from "../hooks/useSocket";
 
 // Chave para armazenar todos os jogadores
 const PLAYERS_STORAGE_KEY = "t20_players";
@@ -48,8 +49,9 @@ const PlayersContext = createContext<PlayersContextType | null>(null);
 
 export function PlayersProvider({ children }: { children: ReactNode }) {
   const [players, setPlayers] = useState<Record<string, PlayerData>>({});
+  const { socket, isConnected } = useSocket();
 
-  // Carrega jogadores do localStorage
+  // Carrega jogadores do localStorage (fallback)
   useEffect(() => {
     const loadPlayers = () => {
       try {
@@ -72,10 +74,77 @@ export function PlayersProvider({ children }: { children: ReactNode }) {
     };
     
     loadPlayers();
-    // Atualiza a cada 5 segundos
-    const interval = setInterval(loadPlayers, 5000);
-    return () => clearInterval(interval);
-  }, []);
+    // Polling de fallback a cada 5 segundos (se não estiver usando Socket.io)
+    if (!isConnected) {
+      const interval = setInterval(loadPlayers, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [isConnected]);
+
+  // Escuta eventos do Socket.io
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    // Quando recebe lista de players
+    socket.on("players:list", (playersList: PlayerData[]) => {
+      console.log("📋 Recebida lista de players via Socket.io:", playersList.length);
+      const playersMap: Record<string, PlayerData> = {};
+      playersList.forEach((player) => {
+        if (player.playerId) {
+          playersMap[player.playerId] = player;
+        }
+      });
+      setPlayers(playersMap);
+      
+      // Atualiza localStorage como fallback
+      try {
+        localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(playersMap));
+      } catch (err) {
+        console.error("Erro ao salvar players no localStorage:", err);
+      }
+    });
+
+    // Quando um player é atualizado
+    socket.on("player:updated", (playerData: PlayerData) => {
+      console.log("🔄 Player atualizado via Socket.io:", playerData.playerId);
+      if (playerData.playerId) {
+        setPlayers((prev) => {
+          const updated = { ...prev, [playerData.playerId!]: playerData };
+          // Atualiza localStorage
+          try {
+            localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(updated));
+          } catch (err) {
+            console.error("Erro ao salvar player atualizado:", err);
+          }
+          return updated;
+        });
+      }
+    });
+
+    // Quando um player desconecta
+    socket.on("player:disconnected", ({ playerId }: { playerId: string }) => {
+      console.log("👋 Player desconectado:", playerId);
+      setPlayers((prev) => {
+        const updated = { ...prev };
+        delete updated[playerId];
+        try {
+          localStorage.setItem(PLAYERS_STORAGE_KEY, JSON.stringify(updated));
+        } catch (err) {
+          console.error("Erro ao remover player desconectado:", err);
+        }
+        return updated;
+      });
+    });
+
+    // Solicita lista inicial de players
+    socket.emit("players:get");
+
+    return () => {
+      socket.off("players:list");
+      socket.off("player:updated");
+      socket.off("player:disconnected");
+    };
+  }, [socket, isConnected]);
 
   // Registra ou atualiza um jogador
   const updatePlayer = useCallback((playerId: string, playerData: PlayerData) => {

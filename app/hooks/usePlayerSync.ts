@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useRef, useCallback } from "react";
 import { usePlayers } from "../state/PlayersContext";
+import { useSocket } from "./useSocket";
 import { saveNotification, detectChanges, detectArrayChanges, type Change } from "../utils/changeDetection";
 
 // Hook para sincronizar ficha do jogador com o sistema de players
 export function usePlayerSync(): string | null {
   const { updatePlayer, updatePresence } = usePlayers();
+  const { socket, isConnected } = useSocket();
   const playerIdRef = useRef<string | null>(null);
   const previousDataRef = useRef<Record<string, any> | null>(null);
 
@@ -297,16 +299,17 @@ export function usePlayerSync(): string | null {
     // Salva dados atuais como anteriores para próxima comparação
     previousDataRef.current = { ...sheetData };
     
-    updatePlayer(playerIdRef.current, {
+    const playerData = {
+      playerId: playerIdRef.current,
       characterName: sheetData.name || "Sem nome",
       playerName: sheetData.player || "Sem jogador",
       race: sheetData.race,
       classes: sheetData.classes,
       level: sheetData.level,
       attrs: sheetData.attrs,
-          pv: { current: sheetData.pv, max: sheetData.pvMax },
-          pm: { current: sheetData.pm, max: sheetData.pmMax },
-          damageReduction: sheetData.damageReduction,
+      pv: { current: sheetData.pv, max: sheetData.pvMax },
+      pm: { current: sheetData.pm, max: sheetData.pmMax },
+      damageReduction: sheetData.damageReduction,
       defense: sheetData.defense,
       attacks: sheetData.attacks,
       skills: sheetData.skills,
@@ -314,14 +317,22 @@ export function usePlayerSync(): string | null {
       xp: sheetData.xp,
       size: sheetData.size,
       speed: sheetData.speed,
-          profileImage: sheetData.profileImage,
-          weaponImage: sheetData.weaponImage,
-          weaponName: sheetData.weaponName,
-          weaponAbilities: sheetData.weaponAbilities,
-          concept: sheetData.concept,
-          lastUpdate: Date.now(),
-    });
-  }, [updatePlayer]);
+      profileImage: sheetData.profileImage,
+      weaponImage: sheetData.weaponImage,
+      weaponName: sheetData.weaponName,
+      weaponAbilities: sheetData.weaponAbilities,
+      concept: sheetData.concept,
+      lastUpdate: Date.now(),
+    };
+    
+    // Atualiza via contexto (fallback para localStorage)
+    updatePlayer(playerIdRef.current, playerData);
+    
+    // Envia via Socket.io se estiver conectado
+    if (socket && isConnected) {
+      socket.emit("player:sync", playerData);
+    }
+  }, [updatePlayer, socket, isConnected]);
 
   // Inicializa com dados atuais (sem detectar mudanças na primeira vez)
   useEffect(() => {
