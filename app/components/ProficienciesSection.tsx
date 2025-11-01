@@ -1,8 +1,9 @@
 "use client";
+import { ChangeEvent } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 export default function ProficienciesSection() {
-  const [text, setText] = useLocalStorage("proficiencies", "");
+  const [text, setText] = useLocalStorage<string>("proficiencies", "");
   return (
     <section className="parchment rounded-lg p-4">
       <details>
@@ -12,9 +13,9 @@ export default function ProficienciesSection() {
         <div className="mt-3">
           <textarea
             rows={6}
-            className="w-full rounded-md border border-black/10 bg-white/80 p-3 text-black outline-none focus:border-[var(--primary)] dark:border-white/20 dark:bg-black dark:text-white"
+            className="sheet-input w-full rounded-md p-3 outline-none focus:border-[var(--primary)] dark:sheet-input-dark"
             value={text}
-            onChange={(e)=> setText(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value)}
             placeholder="Proficiências, poderes, habilidades, características de origem/classe..."
           />
         </div>
@@ -22,5 +23,4 @@ export default function ProficienciesSection() {
     </section>
   );
 }
-
 

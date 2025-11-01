@@ -1,7 +1,8 @@
 "use client";
 import { useSheet } from "../state/SheetContext";
 
-const ATTRS = ["FOR","DES","CON","INT","SAB","CAR"];
+const ATTRS = ["FOR","DES","CON","INT","SAB","CAR"] as const;
+type AttrKey = typeof ATTRS[number];
 
 export default function AttributesSection() {
   const { attrs, setAttrs, mods } = useSheet();
@@ -17,6 +18,7 @@ export default function AttributesSection() {
               min={0}
               max={30}
               className="w-full octagon px-2 py-3 text-center text-2xl font-bold"
+              style={{ color: "#000000", backgroundColor: "#ffffff" }}
               value={attrs[key]}
               onChange={(e)=>{
                 const v = Math.max(0, Math.min(30, Number(e.target.value || 0)));
@@ -32,5 +34,4 @@ export default function AttributesSection() {
     </section>
   );
 }
-
 

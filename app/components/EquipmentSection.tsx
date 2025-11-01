@@ -1,11 +1,64 @@
 "use client";
+import { ChangeEvent, ReactNode } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { useSheet } from "../state/SheetContext";
 import { calcLoadLimit } from "../utils/calculations";
 
+interface EquipmentItem {
+  item: string;
+  qty: number;
+  weight: number;
+}
+
+function update<T>(setter: (rows: T[]) => void, rows: T[], idx: number, value: T) {
+  const copy = [...rows];
+  copy[idx] = value;
+  setter(copy);
+}
+
+function Th({ children }: { children: ReactNode }) {
+  return <th className="px-2 py-2 opacity-80">{children}</th>;
+}
+
+function Td({ children }: { children: ReactNode }) {
+  return <td className="px-2 py-2">{children}</td>;
+}
+
+interface InputProps {
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function Input({ value, onChange }: InputProps) {
+  return (
+    <input
+      type="text"
+      className="sheet-input w-full rounded-md px-2 py-1 outline-none focus:border-[var(--primary)] dark:sheet-input-dark"
+      value={value}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+    />
+  );
+}
+
+interface NumberInputProps {
+  value: number;
+  onChange: (value: number) => void;
+}
+
+function NumberInput({ value, onChange }: NumberInputProps) {
+  return (
+    <input
+      type="number"
+      className="sheet-input w-28 rounded-md px-2 py-1 outline-none focus:border-[var(--primary)] dark:sheet-input-dark"
+      value={value}
+      onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(Number(e.target.value || 0))}
+    />
+  );
+}
+
 export default function EquipmentSection() {
   const { attrs } = useSheet();
-  const [rows, setRows] = useLocalStorage("equipment", [{ item: "Mochila", qty: 1, weight: 1 }] );
+  const [rows, setRows] = useLocalStorage<EquipmentItem[]>("equipment", [{ item: "Mochila", qty: 1, weight: 1 }]);
 
   const addRow = () => setRows([...rows, { item: "", qty: 1, weight: 0 }]);
   const totalWeight = rows.reduce((sum, r) => sum + Number(r.weight || 0) * Number(r.qty || 0), 0);
@@ -39,17 +92,10 @@ export default function EquipmentSection() {
       <div className="mt-4">
         <div className="mb-1 text-sm opacity-80">Carga: {totalWeight} / {limit}</div>
         <div className="h-3 w-full overflow-hidden rounded-full border border-white/15">
-          <div className="h-full" style={{ width: pct + "%", backgroundColor: "var(--primary)" }} />
+          <div className="h-full" style={{ width: `${pct}%`, backgroundColor: "var(--primary)" }} />
         </div>
       </div>
     </section>
   );
 }
-
-function update(setter, rows, idx, value) { const copy = [...rows]; copy[idx] = value; setter(copy); }
-function Th({ children }) { return <th className="px-2 py-2 opacity-80">{children}</th>; }
-function Td({ children }) { return <td className="px-2 py-2">{children}</td>; }
-function Input({ value, onChange }) { return <input className="w-full rounded-md border border-black/10 bg-white/80 px-2 py-1 text-black outline-none focus:border-[var(--primary)] dark:border-white/20 dark:bg-black dark:text-white" value={value} onChange={(e)=>onChange(e.target.value)} />; }
-function NumberInput({ value, onChange }) { return <input type="number" className="sheet-input w-28 rounded-md px-2 py-1 text-black outline-none focus:border-[var(--primary)] dark:sheet-input-dark dark:text-white" value={value} onChange={(e)=>onChange(Number(e.target.value||0))} />; }
-
 
