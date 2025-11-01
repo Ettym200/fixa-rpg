@@ -54,8 +54,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
 # Copia node_modules do builder (que já tem tsx instalado)
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
-# Garante permissões corretas
+# Garante permissões corretas (antes de mudar usuário)
 RUN chown -R nextjs:nodejs /app
+RUN chmod -R 755 /app
 
 USER nextjs
 

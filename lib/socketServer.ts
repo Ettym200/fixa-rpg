@@ -5,17 +5,28 @@ let io: SocketIOServer | null = null;
 
 export function initializeSocket(server: HTTPServer) {
   if (io) {
+    console.log("⚠️ Socket.io já inicializado, reutilizando...");
     return io;
   }
 
-  io = new SocketIOServer(server, {
-    path: "/api/socket",
-    addTrailingSlash: false,
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-    },
-  });
+  console.log("🔌 Inicializando Socket.io server...");
+  
+  try {
+    io = new SocketIOServer(server, {
+      path: "/api/socket",
+      addTrailingSlash: false,
+      cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+      },
+      transports: ["websocket", "polling"],
+    });
+    
+    console.log("✅ Socket.io server criado");
+  } catch (error) {
+    console.error("❌ Erro ao criar Socket.io server:", error);
+    throw error;
+  }
 
   // Armazena dados dos players em memória
   const players: Map<string, any> = new Map();
