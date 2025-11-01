@@ -45,8 +45,9 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copia arquivos necessários para Socket.io (server.ts e lib/)
+# Copia arquivos necessários para Socket.io (server.ts, server.js e lib/)
 COPY --from=builder --chown=nextjs:nodejs /app/server.ts ./
+COPY --from=builder --chown=nextjs:nodejs /app/server.js ./
 COPY --from=builder --chown=nextjs:nodejs /app/lib ./lib
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./tsconfig.json
@@ -66,8 +67,7 @@ ENV PORT=3000
 # set hostname to localhost
 ENV HOSTNAME=0.0.0.0
 
-# Usar npx tsx para rodar server.ts (que inclui Socket.io)
-# npx garante que encontre tsx mesmo com PATH limitado
-# Como o build standalone do Next.js não inclui server.ts, precisamos rodar diretamente
-CMD ["npx", "tsx", "server.ts"]
+# Tenta usar server.js primeiro (JavaScript puro, mais confiável)
+# Se não existir, usa tsx server.ts como fallback
+CMD ["sh", "-c", "if [ -f server.js ]; then node server.js; else npx tsx server.ts; fi"]
 

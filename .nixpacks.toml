@@ -12,5 +12,5 @@ cmds = [
 ]
 
 [start]
-cmd = "tsx server.ts"
+cmd = "node server.js || tsx server.ts"
 
