@@ -106,7 +106,6 @@ function SheetContent() {
           <div ref={sheetRef} className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="space-y-4 lg:col-span-2">
               <HeaderSection />
-              <AttributesSection />
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <HealthManaSection />
                 <DefenseSection />
@@ -118,6 +117,7 @@ function SheetContent() {
               <OtherFieldsSection />
             </div>
             <div className="space-y-4">
+              <AttributesSection />
               <SkillsSection />
             </div>
           </div>

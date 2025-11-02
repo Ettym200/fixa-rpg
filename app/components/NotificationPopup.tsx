@@ -4,9 +4,13 @@ import {
   getNotifications,
   removeNotification,
   clearAllNotifications,
+  saveNotification,
   type ChangeNotification,
   type Change,
 } from "../utils/changeDetection";
+
+// Importação condicional do useSocket
+import { useSocket } from "../hooks/useSocket";
 
 interface NotificationPopupProps {
   onClose: (id: string) => void;
@@ -119,6 +123,7 @@ function NotificationPopup({ notification, onClose }: NotificationPopupProps) {
 
 export function NotificationManager() {
   const [notifications, setNotifications] = useState<ChangeNotification[]>([]);
+  const { socket, isConnected } = useSocket();
 
   useEffect(() => {
     const loadNotifications = () => {
@@ -130,26 +135,45 @@ export function NotificationManager() {
       setNotifications(notifs);
     };
 
+    const addNotification = (notification: ChangeNotification) => {
+      // Adiciona no localStorage
+      saveNotification(notification);
+      // Atualiza o estado
+      setNotifications(prev => [...prev, notification]);
+      console.log("✅ Notificação adicionada:", notification.id);
+    };
+
     loadNotifications();
 
-    // Atualiza a cada 1 segundo
+    // Atualiza a cada 1 segundo (polling do localStorage como fallback)
     const interval = setInterval(loadNotifications, 1000);
 
-    // Escuta eventos customizados de outras abas
+    // Escuta eventos customizados de outras abas (localStorage)
     const handleCustomEvent = () => {
       loadNotifications();
     };
     window.addEventListener("t20-notification", handleCustomEvent as EventListener);
 
-    // Escuta mudanças no localStorage
+    // Escuta mudanças no localStorage (entre abas)
     window.addEventListener("storage", handleCustomEvent);
+
+    // Escuta notificações via Socket.io (tempo real entre clientes)
+    if (socket && isConnected) {
+      socket.on("notification:received", (notification: ChangeNotification) => {
+        console.log("📡 Notificação recebida via Socket.io:", notification.id);
+        addNotification(notification);
+      });
+    }
 
     return () => {
       clearInterval(interval);
       window.removeEventListener("t20-notification", handleCustomEvent as EventListener);
       window.removeEventListener("storage", handleCustomEvent);
+      if (socket) {
+        socket.off("notification:received");
+      }
     };
-  }, []);
+  }, [socket, isConnected]);
 
   const handleClose = (id: string) => {
     removeNotification(id);

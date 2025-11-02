@@ -60,6 +60,13 @@ export function initializeSocket(server: HTTPServer) {
       socket.emit("players:list", Array.from(players.values()));
     });
 
+    // Quando player envia notificação de mudança
+    socket.on("notification:new", (notification: any) => {
+      console.log("🔔 Notificação recebida via Socket.io:", notification.id);
+      // Envia para todos os admins (broadcast)
+      socket.broadcast.emit("notification:received", notification);
+    });
+
     // Quando player atualiza sua ficha
     socket.on("player:update", (updateData: any) => {
       const playerId = updateData.playerId || socket.id;

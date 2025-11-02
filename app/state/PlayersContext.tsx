@@ -30,9 +30,10 @@ export interface PlayerData {
   size?: string;
   speed?: number;
   profileImage?: string;
-  weaponImage?: string;
   weaponName?: string;
   weaponAbilities?: string;
+  conceptAbility?: string;
+  generalAbilities?: string;
   concept?: string;
   lastUpdate?: number;
   lastSeen?: number;

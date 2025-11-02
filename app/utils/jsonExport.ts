@@ -12,7 +12,6 @@ export function exportSheetToJSON(): string {
 
   // Perfil e arma
   data.profileImage = localStorage.getItem("profileImage") || "";
-  data.weaponImage = localStorage.getItem("weaponImage") || "";
   data.weaponName = localStorage.getItem("weaponName") || "";
 
   // Atributos
@@ -51,6 +50,10 @@ export function exportSheetToJSON(): string {
 
   // Habilidades de Armas
   data.weaponAbilities = localStorage.getItem("weaponAbilities") || "";
+  
+  // Habilidades Adicionais
+  data.conceptAbility = localStorage.getItem("conceptAbility") || "";
+  data.generalAbilities = localStorage.getItem("generalAbilities") || "";
 
   // Outros
   data.xp = Number(localStorage.getItem("xp") || 0);
@@ -93,7 +96,6 @@ export function importSheetFromJSON(jsonData: string): boolean {
 
     // Perfil e arma
     if (data.profileImage !== undefined) localStorage.setItem("profileImage", String(data.profileImage));
-    if (data.weaponImage !== undefined) localStorage.setItem("weaponImage", String(data.weaponImage));
     if (data.weaponName !== undefined) localStorage.setItem("weaponName", String(data.weaponName));
 
     // Atributos
@@ -128,6 +130,10 @@ export function importSheetFromJSON(jsonData: string): boolean {
 
     // Habilidades de Armas
     if (data.weaponAbilities !== undefined) localStorage.setItem("weaponAbilities", String(data.weaponAbilities));
+
+    // Habilidades Adicionais
+    if (data.conceptAbility !== undefined) localStorage.setItem("conceptAbility", String(data.conceptAbility));
+    if (data.generalAbilities !== undefined) localStorage.setItem("generalAbilities", String(data.generalAbilities));
 
     // Outros
     if (data.xp !== undefined) localStorage.setItem("xp", String(data.xp));

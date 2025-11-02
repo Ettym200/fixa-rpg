@@ -145,22 +145,19 @@ export function usePlayerSync(): string | null {
     );
     allChanges.push(...otherChanges);
     
-      // Imagens
+      // Imagens e Nome da Arma
       const imageChanges = detectChanges(
         {
           profileImage: previousDataRef.current.profileImage || "",
-          weaponImage: previousDataRef.current.weaponImage || "",
           weaponName: previousDataRef.current.weaponName || "",
         },
         {
           profileImage: sheetData.profileImage || "",
-          weaponImage: sheetData.weaponImage || "",
           weaponName: sheetData.weaponName || "",
         },
         "Imagens",
         {
           profileImage: "Imagem de Perfil",
-          weaponImage: "Imagem da Arma",
           weaponName: "Nome da Arma",
         }
       );
@@ -180,6 +177,24 @@ export function usePlayerSync(): string | null {
         }
       );
       allChanges.push(...weaponAbilitiesChanges);
+      
+      // Habilidades Adicionais
+      const abilitiesChanges = detectChanges(
+        {
+          conceptAbility: previousDataRef.current.conceptAbility || "",
+          generalAbilities: previousDataRef.current.generalAbilities || "",
+        },
+        {
+          conceptAbility: sheetData.conceptAbility || "",
+          generalAbilities: sheetData.generalAbilities || "",
+        },
+        "Habilidades",
+        {
+          conceptAbility: "Habilidade de Conceito",
+          generalAbilities: "Habilidades Gerais",
+        }
+      );
+      allChanges.push(...abilitiesChanges);
       
       // Conceito
       const conceptChanges = detectChanges(
@@ -208,7 +223,15 @@ export function usePlayerSync(): string | null {
         changes: allChanges,
       };
       console.log("📝 Salvando notificação:", notification);
+      
+      // Salva no localStorage (fallback)
       saveNotification(notification);
+      
+      // Envia via Socket.io se estiver conectado (tempo real)
+      if (socket && isConnected) {
+        socket.emit("notification:new", notification);
+        console.log("📡 Notificação enviada via Socket.io");
+      }
     }
   };
 
@@ -273,11 +296,14 @@ export function usePlayerSync(): string | null {
     
       // Imagens
       data.profileImage = localStorage.getItem("profileImage") || "";
-      data.weaponImage = localStorage.getItem("weaponImage") || "";
       data.weaponName = localStorage.getItem("weaponName") || "";
       
       // Habilidades de Armas
       data.weaponAbilities = localStorage.getItem("weaponAbilities") || "";
+      
+      // Habilidades adicionais
+      data.conceptAbility = localStorage.getItem("conceptAbility") || "";
+      data.generalAbilities = localStorage.getItem("generalAbilities") || "";
       
       // Conceito
       data.concept = localStorage.getItem("concept") || "";
@@ -318,9 +344,10 @@ export function usePlayerSync(): string | null {
       size: sheetData.size,
       speed: sheetData.speed,
       profileImage: sheetData.profileImage,
-      weaponImage: sheetData.weaponImage,
       weaponName: sheetData.weaponName,
       weaponAbilities: sheetData.weaponAbilities,
+      conceptAbility: sheetData.conceptAbility,
+      generalAbilities: sheetData.generalAbilities,
       concept: sheetData.concept,
       lastUpdate: Date.now(),
     };
@@ -358,9 +385,10 @@ export function usePlayerSync(): string | null {
       size: sheetData.size,
       speed: sheetData.speed,
           profileImage: sheetData.profileImage,
-          weaponImage: sheetData.weaponImage,
           weaponName: sheetData.weaponName,
           weaponAbilities: sheetData.weaponAbilities,
+          conceptAbility: sheetData.conceptAbility,
+          generalAbilities: sheetData.generalAbilities,
           concept: sheetData.concept,
           lastUpdate: Date.now(),
     });

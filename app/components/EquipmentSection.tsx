@@ -61,6 +61,11 @@ export default function EquipmentSection() {
   const [rows, setRows] = useLocalStorage<EquipmentItem[]>("equipment", [{ item: "Mochila", qty: 1, weight: 1 }]);
 
   const addRow = () => setRows([...rows, { item: "", qty: 1, weight: 0 }]);
+  const deleteRow = (idx: number) => {
+    if (confirm("Deseja remover este item?")) {
+      setRows(rows.filter((_, i) => i !== idx));
+    }
+  };
   const totalWeight = rows.reduce((sum, r) => sum + Number(r.weight || 0) * Number(r.qty || 0), 0);
   const limit = calcLoadLimit(attrs.FOR);
   const pct = Math.min(100, Math.round((totalWeight / limit) * 100));
@@ -75,7 +80,7 @@ export default function EquipmentSection() {
         <table className="sheet-table w-full text-sm">
           <thead>
             <tr className="text-left">
-              <Th>Item</Th><Th>QTD/SLOTS</Th><Th>Peso</Th>
+              <Th>Item</Th><Th>QTD/SLOTS</Th><Th>Peso</Th><Th className="w-16">Ações</Th>
             </tr>
           </thead>
           <tbody>
@@ -84,6 +89,15 @@ export default function EquipmentSection() {
                 <Td><Input value={r.item} onChange={(v)=>update(setRows, rows, idx, { ...r, item: v })} /></Td>
                 <Td><NumberInput value={r.qty} onChange={(v)=>update(setRows, rows, idx, { ...r, qty: v })} /></Td>
                 <Td><NumberInput value={r.weight} onChange={(v)=>update(setRows, rows, idx, { ...r, weight: v })} /></Td>
+                <Td>
+                  <button
+                    onClick={() => deleteRow(idx)}
+                    className="rounded-md border border-red-500/50 bg-red-500/20 px-2 py-1 text-red-300 hover:bg-red-500/30 transition-colors text-xs"
+                    title="Deletar item"
+                  >
+                    🗑️
+                  </button>
+                </Td>
               </tr>
             ))}
           </tbody>

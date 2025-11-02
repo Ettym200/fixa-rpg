@@ -132,6 +132,26 @@ textarea:not(.octagon) {
   color: #ffffff !important;
 }
 
+/* Animação de rotação lenta para círculos de atributos */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Centralização perfeita de inputs em círculos de atributos */
+input[type="number"].attribute-input {
+  text-align: center !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 /* Impressão */
 @media print {
   .no-print { display: none !important; }
