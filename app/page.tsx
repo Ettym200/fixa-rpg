@@ -20,7 +20,7 @@ function SheetContent() {
   const sheetRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   usePlayerSync(); // Sincroniza dados com sistema de players
-
+  // Sincroniza dados com sistema de players
   const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -41,7 +41,7 @@ function SheetContent() {
       }
     };
     reader.readAsText(file);
-    
+    // Sincroniza dados com sistema de players
     // Limpa o input para permitir importar o mesmo arquivo novamente
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
