@@ -152,6 +152,19 @@ input[type="number"].attribute-input {
   justify-content: center !important;
 }
 
+/* Garante centralização de inputs dentro de círculos de atributos */
+.attribute-input-wrapper {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+.attribute-input-wrapper input {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
 /* Impressão */
 @media print {
   .no-print { display: none !important; }

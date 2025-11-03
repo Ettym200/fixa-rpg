@@ -1,5 +1,6 @@
 "use client";
 import { useSheet } from "../state/SheetContext";
+import { useEffect, useRef } from "react";
 
 const ATTRS = ["FOR","DES","CON","INT","SAB","CAR"] as const;
 type AttrKey = typeof ATTRS[number];
@@ -12,6 +13,21 @@ interface AttributeCircleProps {
 }
 
 function AttributeCircle({ label, value, modifier, onChange }: AttributeCircleProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  useEffect(() => {
+    // Força recálculo do layout após renderização
+    if (inputRef.current) {
+      const forceReflow = inputRef.current.offsetWidth;
+      // Usa requestAnimationFrame para garantir que o layout seja recalculado
+      requestAnimationFrame(() => {
+        if (inputRef.current) {
+          inputRef.current.style.textAlign = 'center';
+        }
+      });
+    }
+  }, [value]);
+  
   return (
     <div className="relative flex flex-col items-center">
       {/* Imagem de fundo do círculo */}
@@ -29,32 +45,36 @@ function AttributeCircle({ label, value, modifier, onChange }: AttributeCirclePr
         />
         {/* Conteúdo dentro do círculo (não gira) */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10" style={{ paddingTop: '8%', paddingBottom: '12%' }}>
-          {/* Input do número (no topo) */}
-          <input
-            type="number"
-            min={0}
-            max={30}
-            className="text-center text-2xl md:text-3xl font-bold bg-transparent border-none outline-none cursor-pointer"
-            style={{ 
-              color: "#000000",
-              WebkitAppearance: 'none',
-              MozAppearance: 'textfield',
-              pointerEvents: 'auto',
-              textAlign: 'center',
-              lineHeight: '1',
-              padding: '0',
-              margin: '0',
-              marginBottom: '6px',
-              width: '100%'
-            }}
-            value={value}
-            onChange={(e) => {
-              const v = Math.max(0, Math.min(30, Number(e.target.value || 0)));
-              onChange(v);
-            }}
-          />
+          {/* Wrapper para centralizar o número perfeitamente */}
+          <div className="w-full mb-1.5 attribute-input-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <input
+              ref={inputRef}
+              type="number"
+              min={0}
+              max={30}
+              className="text-center text-2xl md:text-3xl font-bold bg-transparent border-none outline-none cursor-pointer"
+              style={{ 
+                color: "#000000",
+                WebkitAppearance: 'none',
+                MozAppearance: 'textfield',
+                pointerEvents: 'auto',
+                textAlign: 'center',
+                lineHeight: '1.2',
+                padding: '0',
+                margin: '0 auto',
+                width: '60px',
+                display: 'block',
+                letterSpacing: '0'
+              }}
+              value={value}
+              onChange={(e) => {
+                const v = Math.max(0, Math.min(30, Number(e.target.value || 0)));
+                onChange(v);
+              }}
+            />
+          </div>
           {/* Label dentro do círculo (abaixo do número) */}
-          <div className="text-xs md:text-sm font-bold uppercase tracking-wider leading-tight" style={{ color: "#FFD700" }}>
+          <div className="text-xs md:text-sm font-bold uppercase tracking-wider leading-tight" style={{ color: "#FFD700", textAlign: 'center', width: '100%' }}>
             {label}
           </div>
         </div>
